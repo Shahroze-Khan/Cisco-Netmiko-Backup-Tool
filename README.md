@@ -1,57 +1,78 @@
-📘 Cisco Netmiko Backup Automation Tool
+🛡️ Multi-Device Cisco Backup Tool 
 
-🚀 Overview
+📖 Overview
 
-This tool automates the process of retrieving running configurations from multiple Cisco IOS network devices (Switches/Routers) and saves them in an organized, date-stamped directory structure. It is engineered for resilience, automatically attempting a Telnet fallback if the primary SSH connection fails.
+This Python automation tool streamlines the daily backup process for Cisco IOS network devices (Switches and Routers).
 
-⭐ Key Features
+Unlike standard scripts that fail when encountering legacy equipment, this tool features a resilient connection engine. It prioritizes secure SSH connections but automatically attempts a Telnet fallback if SSH is refused or times out.
 
-Dual Protocol Resilience: Prioritizes SSH for security, but automatically falls back to Telnet to ensure compatibility with legacy or non-fully-configured devices.
+⚡ Key Features
 
-Timeouts for Large Configs: Includes increased read_timeout and global_delay_factor to handle large switch stacks or slow devices without failing the connection.
+Hybrid Protocol Support: * 🚀 Primary: SSH (Port 22) via cisco_ios.
 
-Structured Archiving: Automatically creates a hierarchical directory structure based on the current date: Backups / YEAR / MONTH / DAY /.
+🔄 Fallback: Telnet (Port 23) via cisco_ios_telnet.
 
-Clean Output: Files are saved as .txt and automatically use the device's actual hostname for clean, consistent file naming.
+Intelligent Organization: Automatically generates a directory tree based on the current date (Backups/YYYY/Month/Day/).
 
-🛠️ Requirements & Installation
+Resilience & Stability:
 
-Prerequisites
+read_timeout=90: Prevents crashes on large stack switches with massive config files.
 
-Python 3.x
+global_delay_factor=2: Adds a multiplier to wait times, ensuring slow legacy devices don't disconnect during login.
 
-The Netmiko library
+Clean Output: Sanitizes filenames using the device hostname and saves configurations as standard .txt files.
 
-Installation
+🛠️ Prerequisites
 
-Install the Netmiko Library:
+Python 3.6+
+
+Netmiko Library
 
 pip install netmiko
 
 
-Save the Script:
-Save the provided Python code as backup_tool.py within your chosen project directory.
+🚀 Usage
 
-🏃‍♂️ How to Use
+Clone or Download the script backup_tool.py.
 
-Execute the Script:
+Run the script in your terminal:
 
 python backup_tool.py
 
 
-Provide Input:
+Provide Inputs when prompted:
 
-Enter all device IP addresses, separated by commas or spaces.
+IP Addresses: Enter a list of IPs separated by spaces or commas (e.g., 192.168.1.1, 10.0.0.1).
 
-Enter your username, login password, and enable password when prompted.
+Credentials: Enter your Username, Password, and Enable Secret. (Passwords are hidden for security).
 
-Review Output: The script will confirm connections, indicate success, or log any failure to connect, ensuring non-blocking execution across the device list.
+📂 Output Structure
 
-📂 Example Directory Structure
+The script creates a structured archive to keep your backups organized over time:
 
 Backups/
 └── 2025/
     └── December/
         └── 03-Dec/
-            ├── CORE_SW_running_config_20251203_103000.txt
-            └── ACCESS_01_running_config_20251203_103005.txt
+            ├── Core_Switch_running_config_20251203_0900.txt
+            ├── Access_SW_01_running_config_20251203_0901.txt
+            └── Legacy_Router_running_config_20251203_0902.txt
+
+
+⚙️ Logic Flow
+
+The script follows this decision matrix for every IP provided:
+
+Initialize: specific device parameters (IP, user, pass).
+
+Attempt SSH: Try ConnectHandler with device_type='cisco_ios'.
+
+Catch Error: If SSH fails, log error and swap device_type to cisco_ios_telnet.
+
+Attempt Telnet: Retry connection.
+
+Execute: Disable paging (term len 0), fetch config, save to file.
+
+📝 License
+
+This project is open-source. Feel free to fork and modify!
